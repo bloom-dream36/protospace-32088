@@ -2,9 +2,9 @@ class PrototypeController < ApplicationController
  before_action :set_prototype, only: [:edit, :show]
  before_action :authenticate_user!, only: [:edit, :update, :destroy]
  before_action :prototype_user, expect: [:index, :show, :create ,:new]
+  
   def index
     @prototypes = Prototype.includes(:user)
-    
   end
 
   def new
@@ -59,6 +59,8 @@ private
   def prototype_user
     unless current_user.id == self.user_id
       userredirect_to action: :index
-  end
+    end
+  end   
 end
+
 
