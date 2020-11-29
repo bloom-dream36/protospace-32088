@@ -1,8 +1,8 @@
-class PrototypeController < ApplicationController
+class PrototypesController < ApplicationController
  before_action :set_prototype, only: [:edit, :show]
- before_action :authenticate_user!, only: [:edit, :update, :destroy]
- before_action :prototype_user, expect: [:index, :show, :create ,:new]
-  
+ before_action :authenticate_user!, except: [:index, :show]
+ 
+ 
   def index
     @prototypes = Prototype.includes(:user)
   end
@@ -12,9 +12,7 @@ class PrototypeController < ApplicationController
   end
 
   def create
-    Prototype.create(prototype_params)
-    @prototype = Prototype.create(prototype_params)
-    
+    @prototype = Prototype.new(prototype_params)
    if @prototype.save
       redirect_to root_path
     else
@@ -32,6 +30,9 @@ class PrototypeController < ApplicationController
 
   def update
      prototype = Prototype.find(params[:id])
+     unless current_user == prototype.user
+      redirect_to root_path 
+    end
    if prototype.update(prototype_params)
      redirect_to prototype_path, method: :show
     else
@@ -40,9 +41,15 @@ class PrototypeController < ApplicationController
   end
 
   def destroy
-      prototype = Prototype.find(params[:id])
-      prototype.destroy
+        prototype = Prototype.find(params[:id])
+        unless current_user == prototype.user
+          redirect_to root_path 
+        end
+    if prototype.destroy
       redirect_to root_path
+    else
+        redirect_to root_path
+    end
   end
 
 
@@ -55,12 +62,5 @@ private
   def set_prototype
     @prototype = Prototype.find(params[:id])
   end
-
-  def prototype_user
-    unless current_user.id == self.user_id
-      userredirect_to action: :index
-    end
-  end   
 end
-
 
